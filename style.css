@@ -166,11 +166,53 @@ button:hover {
 /* -------------------------------------------------------------------------- */
 
 .categoria {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  padding: 10px;
-  justify-content: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px; /* Espaço entre os cards */
+    padding: 20px;
+}
+
+/* Estilo para cada Card de Prato (Estilo Outback) */
+.prato-card {
+    background-color: #5B271E; /* Cor de fundo escura */
+    color: #FFFDF5; /* Texto claro */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 280px; /* Largura fixa do card */
+    overflow: hidden; /* Garante que a imagem se ajuste ao border-radius */
+    transition: transform 0.3s ease;
+    text-align: left;
+}
+
+.prato-card:hover {
+    transform: translateY(-5px); /* Efeito de elevação ao passar o mouse */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.prato-card img {
+    width: 100%;
+    height: 180px; /* Altura fixa para a imagem */
+    object-fit: cover; /* Garante que a imagem preencha o espaço sem distorcer */
+    border-bottom: 3px solid #FFCC37; /* Linha divisória com a cor de destaque (amarelo ouro) */
+}
+
+.prato-info {
+    padding: 15px;
+}
+
+.prato-info h4 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: #FFCC37; /* Cor de destaque para o nome do prato */
+    font-size: 1.2em;
+}
+
+.prato-info p.preco {
+    margin: 0;
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #ED6C24; /* Cor para o preço (laranja queimado) */
 }
 
 .card {
