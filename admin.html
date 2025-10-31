@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Tasti</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+  <div class="header-container">
+    <div class="logo-col">
+      <img src="logo1.png" alt="Tasti Logo" class="logo">
+    </div>
+
+    <nav class="navbar">
+      <a href="index.html">Início</a>
+      <a href="menu.html">Cardápio</a>
+      <a href="reservas.html">Reservas</a>
+      <a href="admin.html">Admin</a>
+    </nav>
+  </div>
+</header>
+
+  <h1>Painel Administrativo</h1>
+
+  <div id="loginAdmin">
+    <input type="text" id="adminUser" placeholder="Usuário">
+    <input type="password" id="adminPass" placeholder="Senha">
+    <button onclick="loginAdmin()">Entrar</button>
+  </div>
+
+  <div id="painel" style="display:none;">
+    <h2>Gerenciar Cardápio</h2>
+   <form id="formPrato">
+  <input type="text" id="pratoNome" placeholder="Nome do prato" required>
+  <input type="text" id="pratoPreco" placeholder="Preço" required>
+  <input type="text" id="pratoImg" placeholder="URL da imagem">
+  <select id="pratoCategoria" required>
+    <option value="">Selecione a categoria</option>
+    <option value="entradas">Entradas</option>
+    <option value="principais">Principais</option>
+    <option value="sobremesas">Sobremesas</option>
+    <option value="bebidas">Bebidas</option>
+  </select>
+  <button type="submit">Adicionar Prato</button>
+</form>
+
+    <div id="listaPratos"></div>
+
+    
+
+  <script src="script.js"></script>
+</body>
+</html>

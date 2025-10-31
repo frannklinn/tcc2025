@@ -1,0 +1,557 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #FFFDF5;
+  color: #5B271E;
+}
+header {
+  padding: 0;
+  text-align: center;
+  background: #5B271E;
+  border-bottom: 3px solid #FFCC37;
+}
+
+header h1 {
+  margin: 0;
+  color: #FFFDF5; 
+}
+
+section {
+  padding: 20px;
+  text-align: center;
+}
+
+h2 {
+  color: #FFCC37; 
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+}
+#carrossel img {
+  display: none;
+  width: 100%;
+  max-width: 900px; 
+  max-height: 380px; 
+  height: auto; 
+  object-fit: cover;
+  border: 4px solid #5B271E;
+  border-radius: 12px;
+  margin: 10px auto; 
+}
+
+#carrossel img.ativo {
+  display: block;
+  margin: auto;
+}
+form input, form select, form button {
+  margin: 5px;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #5B271E;
+}
+#chamada {
+  text-align: center;
+  padding: 30px 20px;
+  background: #ED6C24;
+  color: #FFFDF5;
+}
+#chamada h2 {
+  color: #5B271E;
+  text-shadow: none;
+}
+button[type="submit"], button:not(.remover-btn, .search-bar button, .whatsapp-box button) {
+  background: #ED6C24;
+  color: white;
+  border: none;
+  cursor: pointer;
+  padding: 10px 20px;
+  font-weight: bold;
+  transition: background 0.3s, transform 0.3s;
+}
+button:hover {
+  background: #FFCC37;
+  color: #5B271E;
+  transform: translateY(-2px);
+}
+.card { 
+  background: #222; 
+  padding: 10px; 
+  margin: 10px; 
+  border: 1px solid #EBDACA; 
+}
+
+/* -------------------------------------------------------------------------- */
+/* NOVOS ESTILOS PARA O MAPA DE RESERVAS (Planta Baixa) */
+/* -------------------------------------------------------------------------- */
+
+/* AJUSTADO: Aumentei o padding e a altura mínima */
+#plantaBaixaContainer {
+    max-width: 800px; 
+    width: 100%;
+    margin: 30px auto;
+    padding: 50px; /* AUMENTADO: Máximo de padding para dar folga */
+    background: #EBDACA; 
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    position: relative; 
+    min-height: 700px; /* AUMENTADO: Mais altura mínima para espaçamento total */
+    box-sizing: border-box; 
+}
+
+#mapaMesas {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 colunas */
+    grid-template-rows: repeat(4, 1fr);    /* 4 linhas */
+    gap: 30px; /* espaço entre mesas */
+    align-items: center;
+    justify-items: center;
+    box-sizing: border-box;
+    padding: 10px; /* espaço interno para não colar nas bordas */
+}
+
+/* Mesas agora são posicionadas pelo grid, não absolute */
+.mesa {
+    width: 90px;
+    height: 90px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.0em;
+    cursor: pointer;
+    line-height: 1.2;
+    text-align: center;
+    background: #38761D;
+    border: 3px solid #FFCC37;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.4);
+    transition: all 0.25s ease;
+    position: relative; /* importante: retirar absolute */
+    z-index: 5;
+}
+
+/* Mesas retangulares: elas usam layout diferente mas continuam dentro do grid */
+.mesa.mesa-retangular {
+    width: 160px;
+    height: 70px;
+    border-radius: 8px;
+    font-size: 1.0em;
+}
+
+/* Efeito de hover e status */
+.mesa:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(255, 204, 55, 0.8);
+    z-index: 10;
+}
+.mesa.ocupada {
+    background: #A50000; 
+    border-color: #5B271E;
+    cursor: not-allowed;
+    transform: none; 
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.4);
+}
+.mesa.selecionada {
+    background: #ED6C24; 
+    border-color: #FFFDF5;
+    transform: scale(1.02);
+    box-shadow: 0 0 15px #ED6C24;
+}
+
+/* -------------------------------------------------------------------------- */
+/* FIM DOS NOVOS ESTILOS PARA O MAPA DE RESERVAS */
+/* -------------------------------------------------------------------------- */
+
+.categoria {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 10px;
+  justify-content: center;
+}
+
+.card {
+  background: #5B271E;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  color: #FFFDF5;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s;
+}
+
+.card img {
+  border-radius: 10px;
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.card strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 1.2em;
+  color: #FFCC37; 
+}
+.card:hover {
+  transform: translateY(-5px);
+}
+.card p {
+  margin: 5px 0;
+}
+.categoria-card {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.categoria-card .card {
+  width: 200px;
+  text-align: center;
+}
+
+.categoria-card img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.carrossel-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+}
+
+#miniCarrosselContainer {
+  text-align: center;
+  padding: 20px;
+  margin: 40px auto;
+  max-width: 1400px; 
+}
+.mini-carrossel-wrapper {
+  max-width: 100%; 
+  overflow: hidden; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.mini-carrossel {
+  display: flex;
+  transition: transform 0.5s ease;
+  gap: 20px;
+}
+.mini-carrossel img {
+  flex: 0 0 calc(31% - 10px); 
+  height: 140px; 
+  object-fit: cover;
+  border: 3px solid #F5BE78; 
+  border-radius: 12px;
+}
+
+.carrossel-btn {
+  background: #EBDACA;
+  border: none;
+  font-size: 24px;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 50%;
+  margin: 0 10px;
+  color: black;
+}
+
+.carrossel-btn:hover {
+  background: darkgoldenrod;
+}
+
+.indicators {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.indicators .dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #5B271E; 
+  cursor: pointer;
+}
+
+.indicators .dot.active {
+  background: #ED6C24;
+}
+
+.dotted-divider {
+  border: none;
+  border-top: 3px dotted #FFCC37; 
+  margin: 15px auto;
+  width: 80%;
+}
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 40px;
+  background: #5B271E; 
+  color: #FFFDF5; 
+  font-family: Arial, sans-serif;
+}
+.footer-col {
+  flex: 1;
+  margin: 0 20px;
+}
+
+.logo-col img {
+  width: 150px;
+  margin-bottom: 20px;
+}
+.logo-col {
+  width: 150px; 
+  text-align: left;
+}
+.logo-col ul {
+  list-style: none;
+  padding: 0;
+}
+
+.logo-col li {
+  margin: 8px 0;
+}
+
+.logo-col a {
+  text-decoration: none;
+  color: #FFFDF5;
+}
+
+.logo-col a:hover {
+  color: #ED6C24;
+}
+
+.whatsapp-box {
+  background: #ED6C24; 
+  color: #5B271E; 
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.whatsapp-box strong {
+  color: #5B271E; 
+}
+
+.whatsapp-box button {
+  background: #FFCC37;
+  color: #5B271E;
+  font-weight: bold;
+}
+
+.whatsapp-box button:hover {
+  background: #FFFDF5;
+  transform: none;
+}
+
+.app-col h3 {
+  color: #003366;
+  margin-bottom: 20px;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.cta-buttons button {
+  background: #5B271E;
+  color: #FFFDF5;
+  border: 1px solid #ED6C24;
+  padding: 10px 15px;
+}
+
+.cta-buttons button:hover {
+  background: #ED6C24;
+  color: #FFFDF5;
+}
+
+.app-image {
+    width: 350px; 
+    height: auto; 
+    display: block;
+    margin-top: 10px;
+}
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; 
+  padding: 10px 20px;
+  background: #5B271E;
+  border-bottom: 3px solid #FFCC37;
+}
+
+.logo {
+  height: 100px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.search-bar {
+  flex-grow: 1; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.search-bar input {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  background: #FFFDF5;
+  border: 1px solid #5B271E;
+  width: 300px;
+}
+
+.search-bar button {
+  padding: 8px 10px;
+  margin-left: 5px;
+  background: #ED6C24;
+  color: white;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.navbar a {
+  margin: 0 15px;
+  color: #FFFDF5; 
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s;
+  white-space: nowrap; 
+}
+
+.navbar a:hover {
+  color: #FFCC37;
+}
+
+button.remover-btn {
+  background: #A50000; 
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: 10px;
+  transition: 0.3s;
+}
+
+button.remover-btn:hover {
+  background: #ff4444;
+}
+#listaPratos p {
+  background: #FFFDF5; 
+  padding: 8px;
+  border-radius: 8px;
+  margin: 6px 0;
+  color: #5B271E; 
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+#listaPratos h3 {
+  color: #ED6C24; 
+  border-bottom: 2px dotted #FFCC37; 
+  margin-top: 15px;
+  padding-bottom: 5px;
+}
+
+#sobre-nos-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 50px;
+  padding: 50px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+#sobre-nos-texto {
+  flex: 1;
+  color: #5B271E; 
+  text-align: left;
+}
+
+#sobre-nos-texto h2 {
+   color: #ED6C24; 
+   margin-bottom: 20px;
+}
+
+ #sobre-nos-imagem {
+  flex: 1;
+  text-align: center;
+}
+
+   #sobre-nos-imagem img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 15px;
+  box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
+}
+
+    @media (max-width: 900px) {
+    #sobre-nos-container {
+        flex-direction: column;
+        text-align: center;
+    }
+    #sobre-nos-texto {
+        margin-bottom: 20px;
+    }
+
+    .mini-carrossel img {
+        flex: 0 0 calc(70% - 10px); 
+        height: 180px; 
+    }
+    
+    .header-container {
+      flex-direction: column;
+      text-align: center;
+    }
+    .search-bar {
+      margin: 10px 0;
+      width: 100%;
+    }
+    .search-bar input {
+      width: 80%;
+    }
+    .navbar {
+      width: 100%;
+      padding: 10px 0;
+    }
+    .navbar a {
+      margin: 0 8px;
+    }
+    .footer {
+        flex-direction: column;
+        gap: 30px;
+        text-align: center;
+    }
+    .logo-col img, .app-image {
+        margin: auto;
+    }
+    .cta-buttons {
+      justify-content: center;
+    }
+    #mapaMesas {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+  }
+}

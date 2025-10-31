@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Reservas - Tasti</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+  <div class="header-container">
+    <div class="logo-col">
+      <img src="logo1.png" alt="Tasti Logo" class="logo">
+    </div>
+
+    <nav class="navbar">
+      <a href="index.html">Início</a>
+      <a href="menu.html">Cardápio</a>
+      <a href="reservas.html">Reservas</a>
+      <a href="admin.html">Admin</a>
+    </nav>
+  </div>
+</header>
+
+  <section id="reservas">
+    <h2>Reservar Mesa</h2>
+    <form id="formReserva">
+      <input type="text" id="nome" placeholder="Seu nome" required>
+      <input type="email" id="email" placeholder="Seu email" required>
+      <input type="date" id="data" required>
+      <input type="time" id="hora" required>
+      <input type="number" id="pessoas" placeholder="Nº de pessoas" required>
+
+      <h3>Escolha sua mesa no mapa:</h3>
+      
+      <div id="plantaBaixaContainer">
+          <div id="mapaMesas">
+              </div>
+      </div>
+      
+      <input type="hidden" id="mesa" required>
+
+      <button type="button" id="btnDesconto">Quero desconto de aniversário 🎉</button>
+        
+      <input type="date" id="aniversario" placeholder="Data de aniversário" style="display:none;">
+
+    
+      <button type="submit">Reservar</button>
+    </form>
+    <div id="listaReservas"></div>
+  </section>
+
+  <footer class="footer-copyright">
+    <p>&copy; 2025 Tasti</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
