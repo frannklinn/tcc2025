@@ -1,3 +1,20 @@
+// import { initializeApp } from "firebase/app";
+// import { getAnalytics } from "firebase/analytics";
+
+// const firebaseConfig = {
+//   apiKey: "AIzaSyCWB2EZidqC2i9b0PY5w9a_0Yu8udfGwOw",
+//   authDomain: "restaurante-tasti.firebaseapp.com",
+//   projectId: "restaurante-tasti",
+//   storageBucket: "restaurante-tasti.firebasestorage.app",
+//   messagingSenderId: "63622945173",
+//   appId: "1:63622945173:web:1a78045875957ac7e53e9c",
+//   measurementId: "G-DH1FWLFKF6"
+// };
+
+
+// const app = initializeApp(firebaseConfig);
+// const analytics = getAnalytics(app);
+
 let idx = 0;
 setInterval(()=>{
   const imagens = document.querySelectorAll('#carrossel img');
@@ -70,21 +87,34 @@ let cardapio = JSON.parse(localStorage.getItem('cardapio')) || {
   ]
 };
 
-function renderMenuDividido(){
-  for(let categoria in cardapio){
-    let div = document.getElementById(categoria);
-    if(div){
-      div.innerHTML = "";
-      cardapio[categoria].forEach(item=>{
-        div.innerHTML += `
-          <div class="card">
-            <img src="${item.img}" width="200"><br>
-            <strong>${item.nome}</strong><br>
-            R$ ${item.preco}
-          </div>`;
+function renderMenuDividido() {
+  const entradasDiv = document.querySelector('#entradas .categoria');
+  const principaisDiv = document.querySelector('#principais .categoria');
+  const sobremesasDiv = document.querySelector('#sobremesas .categoria');
+  const bebidasDiv = document.querySelector('#bebidas .categoria');
+
+  // Função auxiliar para renderizar uma categoria
+  const renderCategoria = (divElement, itens) => {
+    if (divElement) {
+      divElement.innerHTML = "";
+      itens.forEach(prato => {
+        divElement.innerHTML += `
+          <div class="prato-card">
+            <img src="${prato.img}" alt="${prato.nome}">
+            <div class="prato-info">
+              <h4>${prato.nome}</h4>
+              <p class="preco">R$ ${parseFloat(prato.preco).toFixed(2).replace('.', ',')}</p>
+            </div>
+          </div>
+        `;
       });
     }
-  }
+  };
+
+  renderCategoria(entradasDiv, cardapio.entradas);
+  renderCategoria(principaisDiv, cardapio.principais);
+  renderCategoria(sobremesasDiv, cardapio.sobremesas);
+  renderCategoria(bebidasDiv, cardapio.bebidas);
 }
 
 
