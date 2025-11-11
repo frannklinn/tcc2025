@@ -55,6 +55,18 @@ if(formReserva){
     alert("Reserva realizada!");
   });
 }
+function loginCliente() {
+  const email = document.getElementById('clienteEmail').value;
+  const senha = document.getElementById('clientePass').value;
+
+  if (email && senha) {
+   
+    alert(`Tentativa de Login para: ${email}. A lógica de verificação deve ser adicionada no servidor.`);
+
+  } else {
+    alert("Por favor, preencha todos os campos.");
+  }
+}
 function renderReservas(){
   const div = document.getElementById('listaReservas');
   if(!div) return;
