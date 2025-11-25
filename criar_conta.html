@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Criar Conta - Tasti</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="header-container">
+    <div class="logo-col">
+      <img src="logo1.png" alt="Tasti Logo" class="logo">
+    </div>
+
+    <nav class="navbar">
+      <a href="index.html">Início</a>
+      <a href="menu.html">Cardápio</a>
+      <a href="reservas.html">Reservas</a>
+      <a href="login_cliente.html">Login</a>
+      <a href="admin.html">Admin</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="login-container">
+    <h2>Criar Conta</h2>
+
+    <div class="login-box">
+
+      <input type="text" id="cadNome" placeholder="Nome completo" required>
+
+      <input type="tel" id="cadTelefone" placeholder="Telefone (ex: 21999999999)" required>
+
+      <input type="email" id="cadEmail" placeholder="E-mail" required>
+
+      <input type="password" id="cadSenha" placeholder="Senha" required>
+
+      <button onclick="criarConta()">Criar Conta</button>
+
+      <p class="login-links">
+        Já tem conta?  
+        <a href="login_cliente.html">Entrar</a>
+      </p>
+
+    </div>
+
+  </section>
+</main>
+
+<footer>
+  <p>&copy; 2025 Tasti</p>
+</footer>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
