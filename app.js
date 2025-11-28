@@ -1,7 +1,15 @@
 // firebase-config.js
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getFirestore, collection, addDoc, getDocs, onSnapshot, deleteDoc, doc } from "firebase/firestore";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics.js";
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  getDocs, 
+  onSnapshot, 
+  deleteDoc, 
+  doc
+} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
 // Configuração do Firebase
 const firebaseConfig = {
@@ -19,7 +27,7 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
 
-// Variações globais
+// Variáveis globais
 let reservas = [];
 let cardapio = {
   entradas: [],
@@ -27,6 +35,68 @@ let cardapio = {
   sobremesas: [],
   bebidas: []
 };
+let usuarios = [];
+const totalMesas = 12;
+
+// ==================== SISTEMA DE USUÁRIOS (FIREBASE) ====================
+async function carregarUsuarios() {
+  try {
+    const querySnapshot = await getDocs(collection(db, "usuarios"));
+    usuarios = [];
+    querySnapshot.forEach((doc) => {
+      usuarios.push({ id: doc.id, ...doc.data() });
+    });
+  } catch (error) {
+    console.error("Erro ao carregar usuários:", error);
+    // Fallback para localStorage
+    const usuariosSalvos = localStorage.getItem('usuarios');
+    usuarios = usuariosSalvos ? JSON.parse(usuariosSalvos) : [];
+  }
+}
+
+async function salvarUsuarioFirebase(usuario) {
+  try {
+    const docRef = await addDoc(collection(db, "usuarios"), usuario);
+    return docRef.id;
+  } catch (error) {
+    console.error("Erro ao salvar usuário no Firebase:", error);
+    // Fallback para localStorage
+    usuario.id = Date.now().toString();
+    usuarios.push(usuario);
+    localStorage.setItem('usuarios', JSON.stringify(usuarios));
+    return usuario.id;
+  }
+}
+
+async function verificarUsuarioExistente(email) {
+  await carregarUsuarios();
+  return usuarios.find(u => u.email === email);
+}
+
+function salvarUsuarios() {
+  localStorage.setItem('usuarios', JSON.stringify(usuarios));
+}
+
+function getUsuarioLogado() {
+  const usuario = localStorage.getItem('usuarioLogado');
+  return usuario ? JSON.parse(usuario) : null;
+}
+
+function setUsuarioLogado(usuario) {
+  localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+}
+
+function logout() {
+  localStorage.removeItem('usuarioLogado');
+  alert("Você saiu da sua conta.");
+  window.location.href = 'index.html';
+}
+
+// ==================== VALIDAÇÃO DE EMAIL ====================
+function validarEmail(email) {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
+}
 
 // ==================== CARROSSEL ====================
 function inicializarCarrossel() {
@@ -49,7 +119,7 @@ function inicializarMiniCarrossel() {
   const nextBtn = document.getElementById("nextBtn");
   const indicatorsContainer = document.getElementById("miniIndicators");
 
-  if (!miniCarrossel || !prevBtn || !nextBtn) return;
+  if (!miniCarrossel) return;
 
   let offset = 0;
   const imagemLargura = 330;
@@ -82,20 +152,24 @@ function inicializarMiniCarrossel() {
     if (dots[index]) dots[index].classList.add("active");
   }
 
-  // Event listeners
-  prevBtn.addEventListener("click", () => {
-    offset += imagemLargura;
-    if (offset > 0) offset = -(imagemLargura * totalSlides);
-    atualizarMiniCarrossel();
-    atualizarDots(Math.abs(offset) / imagemLargura);
-  });
+  // Event listeners para botões (se existirem)
+  if (prevBtn) {
+    prevBtn.addEventListener("click", () => {
+      offset += imagemLargura;
+      if (offset > 0) offset = -(imagemLargura * totalSlides);
+      atualizarMiniCarrossel();
+      atualizarDots(Math.abs(offset) / imagemLargura);
+    });
+  }
 
-  nextBtn.addEventListener("click", () => {
-    offset -= imagemLargura;
-    if (Math.abs(offset) > imagemLargura * totalSlides) offset = 0;
-    atualizarMiniCarrossel();
-    atualizarDots(Math.abs(offset) / imagemLargura);
-  });
+  if (nextBtn) {
+    nextBtn.addEventListener("click", () => {
+      offset -= imagemLargura;
+      if (Math.abs(offset) > imagemLargura * totalSlides) offset = 0;
+      atualizarMiniCarrossel();
+      atualizarDots(Math.abs(offset) / imagemLargura);
+    });
+  }
 }
 
 // ==================== RESERVAS (FIREBASE) ====================
@@ -113,6 +187,7 @@ async function carregarReservasFirebase() {
       reservas.push({ id: doc.id, ...doc.data() });
     });
     renderReservas();
+    renderMesas();
   } catch (error) {
     console.error("Erro ao carregar reservas:", error);
     // Fallback para localStorage
@@ -120,6 +195,7 @@ async function carregarReservasFirebase() {
     if (reservasLocal) {
       reservas = JSON.parse(reservasLocal);
       renderReservas();
+      renderMesas();
     }
   }
 }
@@ -142,40 +218,124 @@ function configurarFormReserva() {
   const formReserva = document.getElementById('formReserva');
   if (!formReserva) return;
 
+  // Configurar botão de desconto
+  const btnDesconto = document.getElementById('btnDesconto');
+  const aniversarioInput = document.getElementById('aniversario');
+  
+  if (btnDesconto && aniversarioInput) {
+    btnDesconto.addEventListener('click', () => {
+      aniversarioInput.style.display = aniversarioInput.style.display === 'none' ? 'block' : 'none';
+    });
+  }
+
   formReserva.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const reservaData = {
-      nome: document.getElementById('nome').value,
-      email: document.getElementById('email').value,
-      data: document.getElementById('data').value,
-      hora: document.getElementById('hora').value,
-      pessoas: document.getElementById('pessoas').value,
-      mesa: document.getElementById('mesa').value,
-      aniversario: document.getElementById('aniversario').value,
-      timestamp: new Date(),
-      desconto: ""
-    };
-
-    // Verificar desconto de aniversário
-    if (reservaData.aniversario) {
-      const hoje = new Date().toISOString().slice(5, 10);
-      if (reservaData.aniversario.slice(5, 10) === hoje) {
-        reservaData.desconto = "🎉 Desconto de Aniversário!";
-      }
-    }
+    // Loading state
+    const btnSubmit = formReserva.querySelector('button[type="submit"]');
+    const originalText = btnSubmit.textContent;
+    btnSubmit.textContent = "Processando...";
+    btnSubmit.disabled = true;
 
     try {
-      await addDoc(collection(db, "reservas"), reservaData);
-      formReserva.reset();
-      alert("Reserva realizada com sucesso!");
-    } catch (error) {
-      console.error("Erro ao fazer reserva:", error);
-      // Fallback para localStorage
-      reservas.push(reservaData);
-      localStorage.setItem('reservas', JSON.stringify(reservas));
-      formReserva.reset();
-      alert("Reserva realizada (modo offline)!");
+      const mesaInput = document.getElementById('mesa');
+      if (!mesaInput || !mesaInput.value) {
+        alert("Por favor, selecione uma mesa no mapa!");
+        btnSubmit.textContent = originalText;
+        btnSubmit.disabled = false;
+        return;
+      }
+
+      const usuarioLogado = getUsuarioLogado();
+      const nomeReserva = usuarioLogado ? usuarioLogado.nome : document.getElementById('nome').value;
+      const emailReserva = usuarioLogado ? usuarioLogado.email : document.getElementById('email').value;
+
+      if (!nomeReserva || !emailReserva) {
+        alert("Por favor, faça login ou preencha seus dados.");
+        btnSubmit.textContent = originalText;
+        btnSubmit.disabled = false;
+        return;
+      }
+
+      // Validação de email para usuários não logados
+      if (!usuarioLogado && !validarEmail(emailReserva)) {
+        alert("Por favor, insira um e-mail válido.");
+        btnSubmit.textContent = originalText;
+        btnSubmit.disabled = false;
+        return;
+      }
+
+      const reservaData = {
+        nome: nomeReserva,
+        email: emailReserva,
+        data: document.getElementById('data').value,
+        hora: document.getElementById('hora').value,
+        pessoas: document.getElementById('pessoas').value,
+        mesa: mesaInput.value,
+        aniversario: document.getElementById('aniversario').value,
+        timestamp: new Date(),
+        desconto: "",
+        usuarioId: usuarioLogado ? usuarioLogado.id : null
+      };
+
+      // Validação de data/hora
+      const dataReserva = new Date(reservaData.data + ' ' + reservaData.hora);
+      if (dataReserva < new Date()) {
+        alert("Não é possível fazer reservas em datas/horários passados!");
+        btnSubmit.textContent = originalText;
+        btnSubmit.disabled = false;
+        return;
+      }
+
+      // Verificar limite de mesas por horário
+      const reservasNoHorario = reservas.filter(r => 
+        r.data === reservaData.data && 
+        r.hora === reservaData.hora
+      ).length;
+
+      if (reservasNoHorario >= totalMesas) {
+        alert("Horário indisponível! Todas as mesas estão reservadas para este horário.");
+        btnSubmit.textContent = originalText;
+        btnSubmit.disabled = false;
+        return;
+      }
+
+      // Verificar desconto de aniversário
+      if (reservaData.aniversario) {
+        const hoje = new Date().toISOString().slice(5, 10);
+        if (reservaData.aniversario.slice(5, 10) === hoje) {
+          reservaData.desconto = "🎉 Desconto de Aniversário!";
+        }
+      }
+
+      try {
+        await addDoc(collection(db, "reservas"), reservaData);
+        formReserva.reset();
+        if (aniversarioInput) aniversarioInput.style.display = 'none';
+        
+        // Se usuário não estava logado, limpar campos de nome e email
+        if (!usuarioLogado) {
+          document.getElementById('nome').value = '';
+          document.getElementById('email').value = '';
+        }
+        
+        alert("Reserva realizada com sucesso!");
+      } catch (error) {
+        console.error("Erro ao fazer reserva:", error);
+        // Fallback para localStorage
+        reservaData.id = Date.now().toString();
+        reservas.push(reservaData);
+        localStorage.setItem('reservas', JSON.stringify(reservas));
+        formReserva.reset();
+        if (aniversarioInput) aniversarioInput.style.display = 'none';
+        alert("Reserva realizada (modo offline)!");
+        renderReservas();
+        renderMesas();
+      }
+    } finally {
+      // Restaurar botão
+      btnSubmit.textContent = originalText;
+      btnSubmit.disabled = false;
     }
   });
 
@@ -184,19 +344,40 @@ function configurarFormReserva() {
   if (dataInput) {
     dataInput.addEventListener('change', renderMesas);
   }
+
+  // Preencher automaticamente se usuário estiver logado
+  const usuarioLogado = getUsuarioLogado();
+  if (usuarioLogado) {
+    const nomeInput = document.getElementById('nome');
+    const emailInput = document.getElementById('email');
+    if (nomeInput) nomeInput.value = usuarioLogado.nome;
+    if (emailInput) emailInput.value = usuarioLogado.email;
+    if (nomeInput && emailInput) {
+      nomeInput.readOnly = true;
+      emailInput.readOnly = true;
+    }
+  }
 }
 
 function renderReservas() {
   const div = document.getElementById('listaReservas');
   if (!div) return;
   
+  const usuarioLogado = getUsuarioLogado();
+  let reservasParaExibir = reservas;
+
+  // Se usuário está logado, mostrar apenas suas reservas
+  if (usuarioLogado) {
+    reservasParaExibir = reservas.filter(r => r.usuarioId === usuarioLogado.id || r.email === usuarioLogado.email);
+  }
+
   div.innerHTML = "<h3>Minhas Reservas</h3>";
-  if (reservas.length === 0) {
+  if (reservasParaExibir.length === 0) {
     div.innerHTML += "<p>Nenhuma reserva encontrada.</p>";
     return;
   }
 
-  reservas.forEach(r => {
+  reservasParaExibir.forEach(r => {
     div.innerHTML += `
       <div class="reserva-item">
         <p><strong>${r.nome}</strong> - ${r.data} ${r.hora} (Mesa ${r.mesa}, ${r.pessoas} pessoas) ${r.desconto || ''}</p>
@@ -290,7 +471,7 @@ function renderMenuDividido() {
       cardapio[categoria].forEach(prato => {
         div.innerHTML += `
           <div class="prato-card">
-            <img src="${prato.img}" alt="${prato.nome}" onerror="this.src='https://via.placeholder.com/150'">
+            <img src="${prato.img}" alt="${prato.nome}" onerror="this.src='https://via.placeholder.com/150?text=Imagem+Indisponível'">
             <div class="prato-info">
               <h4>${prato.nome}</h4>
               <p class="preco">R$ ${parseFloat(prato.preco).toFixed(2).replace('.', ',')}</p>
@@ -309,38 +490,54 @@ function configurarFormPrato() {
   formPrato.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const pratoData = {
-      nome: document.getElementById('pratoNome').value,
-      preco: document.getElementById('pratoPreco').value,
-      img: document.getElementById('pratoImg').value || "https://via.placeholder.com/150",
-      categoria: document.getElementById('pratoCategoria').value,
-      timestamp: new Date()
-    };
-
-    if (!pratoData.categoria) {
-      alert("Escolha uma categoria!");
-      return;
-    }
+    // Loading state
+    const btnSubmit = formPrato.querySelector('button[type="submit"]');
+    const originalText = btnSubmit.textContent;
+    btnSubmit.textContent = "Adicionando...";
+    btnSubmit.disabled = true;
 
     try {
-      await addDoc(collection(db, "cardapio"), pratoData);
-      formPrato.reset();
-      alert(`Prato adicionado em ${pratoData.categoria}!`);
-    } catch (error) {
-      console.error("Erro ao adicionar prato:", error);
-      // Fallback para localStorage
-      cardapio[pratoData.categoria].push(pratoData);
-      localStorage.setItem('cardapio', JSON.stringify(cardapio));
-      formPrato.reset();
-      renderMenuDividido();
-      alert(`Prato adicionado (modo offline)!`);
+      const pratoData = {
+        nome: document.getElementById('pratoNome').value,
+        preco: document.getElementById('pratoPreco').value,
+        img: document.getElementById('pratoImg').value || "https://via.placeholder.com/150?text=Sem+Imagem",
+        categoria: document.getElementById('pratoCategoria').value,
+        timestamp: new Date()
+      };
+
+      if (!pratoData.categoria) {
+        alert("Escolha uma categoria!");
+        btnSubmit.textContent = originalText;
+        btnSubmit.disabled = false;
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "cardapio"), pratoData);
+        formPrato.reset();
+        alert(`Prato adicionado em ${pratoData.categoria}!`);
+      } catch (error) {
+        console.error("Erro ao adicionar prato:", error);
+        // Fallback para localStorage
+        pratoData.id = Date.now().toString();
+        if (!cardapio[pratoData.categoria]) {
+          cardapio[pratoData.categoria] = [];
+        }
+        cardapio[pratoData.categoria].push(pratoData);
+        localStorage.setItem('cardapio', JSON.stringify(cardapio));
+        formPrato.reset();
+        renderMenuDividido();
+        alert(`Prato adicionado (modo offline)!`);
+      }
+    } finally {
+      // Restaurar botão
+      btnSubmit.textContent = originalText;
+      btnSubmit.disabled = false;
     }
   });
 }
 
 // ==================== MAPA DE MESAS ====================
-const totalMesas = 12;
-
 function getMesaPositionStyle(mesaId) {
   const map = {
     1:  "grid-row: 1 / 2; grid-column: 1 / 2;",
@@ -382,7 +579,9 @@ function renderMesas() {
 
     if (ocupada) {
       mesaDiv.classList.add('ocupada');
+      mesaDiv.title = "Mesa ocupada para esta data";
     } else {
+      mesaDiv.title = "Clique para selecionar esta mesa";
       mesaDiv.addEventListener('click', () => {
         document.querySelectorAll('.mesa').forEach(m => m.classList.remove('selecionada'));
         mesaDiv.classList.add('selecionada');
@@ -480,32 +679,149 @@ function renderAdmin() {
 }
 
 // ==================== LOGIN CLIENTE ====================
-function loginCliente() {
+async function loginCliente() {
   const email = document.getElementById('clienteEmail').value;
   const senha = document.getElementById('clientePass').value;
 
-  if (email && senha) {
-    alert(`Tentativa de Login para: ${email}. Integração com autenticação do Firebase pode ser adicionada.`);
-  } else {
+  if (!email || !senha) {
     alert("Por favor, preencha todos os campos.");
+    return;
+  }
+
+  if (!validarEmail(email)) {
+    alert("Por favor, insira um e-mail válido.");
+    return;
+  }
+
+  // Buscar usuário no Firebase
+  await carregarUsuarios();
+  const usuario = usuarios.find(u => u.email === email && u.senha === senha);
+  
+  if (usuario) {
+    setUsuarioLogado(usuario);
+    alert(`Bem-vindo de volta, ${usuario.nome}!`);
+    window.location.href = 'index.html';
+  } else {
+    alert("E-mail ou senha incorretos. Tente novamente ou crie uma conta.");
+  }
+}
+
+// ==================== CRIAR CONTA ====================
+async function criarConta() {
+  const nome = document.getElementById('cadNome').value;
+  const telefone = document.getElementById('cadTelefone').value;
+  const email = document.getElementById('cadEmail').value;
+  const senha = document.getElementById('cadSenha').value;
+  const confirmarSenha = document.getElementById('cadConfirmarSenha').value;
+
+  // Validações
+  if (!nome || !telefone || !email || !senha || !confirmarSenha) {
+    alert("Por favor, preencha todos os campos.");
+    return;
+  }
+
+  if (!validarEmail(email)) {
+    alert("Por favor, insira um e-mail válido.");
+    return;
+  }
+
+  if (senha !== confirmarSenha) {
+    alert("As senhas não coincidem. Tente novamente.");
+    return;
+  }
+
+  if (senha.length < 6) {
+    alert("A senha deve ter pelo menos 6 caracteres.");
+    return;
+  }
+
+  // Verificar se usuário já existe
+  const usuarioExistente = await verificarUsuarioExistente(email);
+  
+  if (usuarioExistente) {
+    alert("Já existe uma conta com este e-mail. Tente fazer login.");
+    return;
+  }
+
+  // Criar novo usuário
+  const novoUsuario = {
+    nome: nome,
+    telefone: telefone,
+    email: email,
+    senha: senha, // ATENÇÃO: Em produção, isso deve ser criptografado!
+    dataCadastro: new Date().toISOString()
+  };
+
+  try {
+    // Salvar usuário no Firebase
+    const usuarioId = await salvarUsuarioFirebase(novoUsuario);
+    novoUsuario.id = usuarioId;
+    
+    // Logar automaticamente
+    setUsuarioLogado(novoUsuario);
+    
+    alert(`Conta criada com sucesso! Bem-vindo ao Tasti, ${nome}!`);
+    window.location.href = 'index.html';
+  } catch (error) {
+    console.error("Erro ao criar conta:", error);
+    alert("Erro ao criar conta. Tente novamente.");
+  }
+}
+
+// ==================== VERIFICAR USUÁRIO LOGADO ====================
+function verificarUsuarioLogado() {
+  const usuarioLogado = getUsuarioLogado();
+  if (usuarioLogado) {
+    console.log(`Usuário logado: ${usuarioLogado.nome}`);
+    // Atualizar interface
+    const loginLinks = document.querySelectorAll('a[href="login_cliente.html"]');
+    loginLinks.forEach(link => {
+      link.textContent = `👤 ${usuarioLogado.nome.split(' ')[0]}`;
+      link.href = 'javascript:void(0)';
+      link.onclick = logout;
+      link.style.fontWeight = 'bold';
+      link.style.color = '#2ecc71';
+    });
+    
+    // Adicionar botão de logout em mais lugares se necessário
+    const nav = document.querySelector('nav');
+    if (nav && !document.querySelector('.logout-btn')) {
+      const logoutBtn = document.createElement('button');
+      logoutBtn.textContent = 'Sair';
+      logoutBtn.className = 'logout-btn';
+      logoutBtn.onclick = logout;
+      logoutBtn.style.marginLeft = '10px';
+      logoutBtn.style.padding = '5px 10px';
+      logoutBtn.style.background = '#e74c3c';
+      logoutBtn.style.color = 'white';
+      logoutBtn.style.border = 'none';
+      logoutBtn.style.borderRadius = '3px';
+      logoutBtn.style.cursor = 'pointer';
+      nav.appendChild(logoutBtn);
+    }
   }
 }
 
 // ==================== INICIALIZAÇÃO GERAL ====================
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
   console.log('Inicializando Restaurante Tasti...');
   
+  // Carregar dados iniciais
+  await carregarUsuarios(); // Agora é async
+  verificarUsuarioLogado();
+  
+  // Inicializar componentes
   inicializarCarrossel();
   inicializarMiniCarrossel();
   inicializarReservas();
   inicializarCardapio();
-  renderMesas();
   
   // Configurar data mínima para reservas (hoje)
   const dataInput = document.getElementById('data');
   if (dataInput) {
     const hoje = new Date().toISOString().split('T')[0];
     dataInput.min = hoje;
+    dataInput.value = hoje;
   }
 });
 
@@ -513,3 +829,6 @@ document.addEventListener('DOMContentLoaded', function() {
 window.loginAdmin = loginAdmin;
 window.loginCliente = loginCliente;
 window.removerPrato = removerPrato;
+window.criarConta = criarConta;
+window.logout = logout;
+window.verificarUsuarioLogado = verificarUsuarioLogado;
