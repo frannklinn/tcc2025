@@ -6,190 +6,169 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- HEADER -->
   <header>
-  <div class="header-container">
-    <div class="logo-col">
-      <img src="logo1.png" alt="Tasti Logo" class="logo">
+    <div class="header-container">
+      <div class="header-left">
+        <div class="logo-col">
+          <img src="logo1.png" alt="Tasti Logo" class="logo">
+        </div>
+        <nav class="navbar">
+          <a href="index.html">INÍCIO</a>
+          <a href="menu.html">CARDÁPIO</a>
+          <a href="reservas.html">RESERVAS</a>
+          <a href="sobre.html">QUEM SOMOS</a>
+        </nav>
+      </div>
+      
+      <div class="header-right">
+        <div class="search-bar">
+          <input type="text" placeholder="Pesquisar...">
+          <button>🔍</button>
+        </div>
+        <nav class="user-nav">
+          <a href="login_cliente.html">LOGIN</a>
+          <a href="admin.html">ADMIN</a>
+        </nav>
+      </div>
     </div>
+  </header>
 
-    <div class="search-bar">
-      <input type="text" placeholder="Pesquisar...">
-      <button>🔍</button>
-    </div>
-<nav class="navbar">
-  <a href="index.html">Início</a>
-  <a href="menu.html">Cardápio</a>
-  <a href="reservas.html">Reservas</a>
-  <a href="login_cliente.html">Login</a> 
-  <a href="admin.html">Admin</a>
-</nav>
-    </nav>
-  </div>
-</header>
+  <main>
+    <section id="home">
+      <h2>Bem-vindo ao Tasti</h2>
+      <div id="carrossel">
+        <img src="https://cdn.outback.com.br/wp-data/wp-content/uploads/2021/05/Foto-8-1024x678.jpg" class="ativo">
+        <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/09/43/de/6d/outback-steakhouse.jpg?w=900&h=500&s=1">
+        <img src="https://cdn.outback.com.br/wp-data/wp-content/uploads/2018/10/Guarulhos-2-1024x569.jpg">
+      </div>
+    </section>
 
+    <section id="chamada">
+      <div class="chamada-content">
+        <h2>🍴 Venha experimentar o melhor da nossa cozinha!</h2>
+        <p>O sabor que você procura está aqui. Reserve já sua mesa ou confira nosso cardápio!</p>
+      </div>
+    </section>
 
-  <section id="home">
-    <h2>Bem-vindo ao nosso restaurante</h2>
-    <div id="carrossel">
-      <img src="https://cdn.outback.com.br/wp-data/wp-content/uploads/2021/05/Foto-8-1024x678.jpg" class="ativo">
-      <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/09/43/de/6d/outback-steakhouse.jpg?w=900&h=500&s=1">
-      <img src="https://cdn.outback.com.br/wp-data/wp-content/uploads/2018/10/Guarulhos-2-1024x569.jpg">
-    </div>
-  </section>
+    <section id="categorias">
+      <div class="section-header">
+        <h2>Nossas Categorias</h2>
+        <p>Descubra nossas delícias</p>
+      </div>
+      <div class="categoria-card">
+        <a href="menu.html#entradas" class="category-link">
+          <div class="card">
+            <img src="https://www.spicebangla.com/wp-content/uploads/2024/07/Crispy-Onion-Rings.webp" alt="Entradas">
+            <strong>ENTRADAS</strong>
+          </div>
+        </a>
+        <a href="menu.html#principais" class="category-link">
+          <div class="card">
+            <img src="https://s2-receitas.glbimg.com/KWpGf7SHzNbPSab_Z3fmhDOGCmo=/0x0:1080x608/924x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_e84042ef78cb4708aeebdf1c68c6cbd6/internal_photos/bs/2022/A/5/RQBWn4SlyzO0JWxYflwg/capa-materia-gshow-102-.png" alt="Pratos Principais">
+            <strong>PRATOS PRINCIPAIS</strong>
+          </div>
+        </a>
+        <a href="menu.html#sobremesas" class="category-link">
+          <div class="card">
+            <img src="https://canalcozinha.com.br/wp-content/uploads/2025/09/petit-gateau-simples-e-rapido.jpg" alt="Sobremesas">
+            <strong>SOBREMESAS</strong>
+          </div>
+        </a>
+        <a href="menu.html#bebidas" class="category-link">
+          <div class="card">
+            <img src="https://cms-bomgourmet.s3.amazonaws.com/bomgourmet%2F2022%2F01%2F11162753%2FCaipirinha-A-Typical-Brazilia-313710112.jpg" alt="Bebidas">
+            <strong>BEBIDAS</strong>
+          </div>
+        </a>
+      </div>
+    </section>
 
-<section id="chamada">
-  <h2>🍴 Venha experimentar o melhor da nossa cozinha!</h2>
-  <p>O sabor que você procura está aqui. Reserve já sua mesa ou confira nosso cardápio!</p>
-</section>
+    <section id="miniCarrosselContainer">
+      <div class="section-header">
+        <h2>Explore Nossos Pratos</h2>
+        <p>Conheça nossas especialidades</p>
+      </div>
+      <div class="mini-carrossel-wrapper">
+        <button class="carrossel-btn" id="prevBtn">‹</button>
+        <div id="miniCarrossel" class="mini-carrossel">
+          <img src="https://www.morumbi.net/guia/wp-content/uploads/2017/03/outback.jpg" alt="Ambiente do restaurante">
+          <img src="https://cdn.outback.com.br/wp-data/wp-content/uploads/2025/03/Outback_tabuas.jpg" alt="Tábua de carnes">
+          <img src="https://cdn.outback.com.br/wp-data/wp-content/uploads/2023/06/Outback-Festival-2023-scaled.jpg" alt="Festival de sabores">
+          <img src="https://cdn.outback.com.br/wp-data/wp-content/uploads/2024/04/INTERNAS_IMPRENSA_344x192.png" alt="Pratos especiais">
+          <img src="https://ibahia.com/wp-content/uploads/fileadmin/user_upload/ibahia/2018/agosto/06/Outback.jpg" alt="Hambúrguer artesanal">
+        </div>
+        <button class="carrossel-btn" id="nextBtn">›</button>
+      </div>
+      <div id="miniIndicators" class="indicators"></div>
+    </section>
 
-<section id="categorias">
-  <h2>Categorias</h2>
-  <div class="categoria-card">
-    <a href="menu.html#entradas" class="category-link">
-    <div class="card"><img src="https://www.spicebangla.com/wp-content/uploads/2024/07/Crispy-Onion-Rings.webp"><strong>Entradas</strong></div>
-    </a>
-    <a href="menu.html#principais" class="category-link">
-    <div class="card"><img src="https://s2-receitas.glbimg.com/KWpGf7SHzNbPSab_Z3fmhDOGCmo=/0x0:1080x608/924x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_e84042ef78cb4708aeebdf1c68c6cbd6/internal_photos/bs/2022/A/5/RQBWn4SlyzO0JWxYflwg/capa-materia-gshow-102-.png"><strong>Pratos Principais</strong></div>
-    </a>
-    <a href="menu.html#sobremesas" class="category-link">
-    <div class="card"><img src="https://canalcozinha.com.br/wp-content/uploads/2025/09/petit-gateau-simples-e-rapido.jpg"><strong>Sobremesas</strong></div>
-    </a>
-    <a href="menu.html#bebidas" class="category-link">
-    <div class="card"><img src="https://cms-bomgourmet.s3.amazonaws.com/bomgourmet%2F2022%2F01%2F11162753%2FCaipirinha-A-Typical-Brazilia-313710112.jpg"><strong>Bebidas</strong></div>
-    </a>
-  </div>
-</section>
+    <hr class="dotted-divider">
+  </main>
 
-<section id="miniCarrosselContainer">
-  <h2>Explore nossos pratos</h2>
-  <div class="mini-carrossel-wrapper">
-   
-    <div id="miniCarrossel" class="mini-carrossel">
-      <img src="https://www.morumbi.net/guia/wp-content/uploads/2017/03/outback.jpg" alt="Prato 1">
-      <img src="https://cdn.outback.com.br/wp-data/wp-content/uploads/2025/03/Outback_tabuas.jpg" alt="Prato 2">
-      <img src="https://cdn.outback.com.br/wp-data/wp-content/uploads/2023/06/Outback-Festival-2023-scaled.jpg" alt="Prato 3">
-      <img src="https://cdn.outback.com.br/wp-data/wp-content/uploads/2024/04/INTERNAS_IMPRENSA_344x192.png" alt="Prato 4">
-      <img src="https://ibahia.com/wp-content/uploads/fileadmin/user_upload/ibahia/2018/agosto/06/Outback.jpg" alt="Prato 5">
-    </div>
-   
-  </div>
-  <div id="miniIndicators" class="indicators"></div>
-</section>
-
-<hr class="dotted-divider">
-<hr class="dotted-divider">
-<hr class="dotted-divider">
-
-  <footer>
+  <!-- FOOTER -->
   <footer class="footer">
-  <div class="footer-col logo-col">
-    <img src="logo1.png" alt="Tasti Logo" class="logo">
-    <ul>
-      <li><a href="sobre.html">Quem Somos</a></li>
-      
-    </ul>
-  </div>
+    <div class="footer-container">
+      <!-- Coluna da Esquerda - Navegação -->
+      <div class="footer-col footer-nav">
+        <div class="footer-section">
+          <h3>TASTI</h3>
+          <ul class="footer-links">
+            <li><a href="sobre.html">QUEM SOMOS</a></li>
+            <li><a href="reservas.html">RESERVAS</a></li>
+            <li><a href="menu.html">CARDÁPIO</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-section">
+          <h3>FALE CONOSCO</h3>
+          <ul class="footer-links">
+            <li><a href="#">CONTATO</a></li>
+            <li><a href="#">TRABALHE CONOSCO</a></li>
+          </ul>
+        </div>
+      </div>
 
-  <div class="footer-col promo-col">
-    <div class="whatsapp-box">
-      <p><strong>CHAMA NO WhatsApp!</strong></p>
-      <p>PROMOÇÕES | NOVIDADES | LANÇAMENTOS</p>
-      <a href="https://wa.me/5521986545581" target="_blank">
-      <button>PARTICIPAR</button>
-      </a>
+      <!-- Coluna do Centro - WhatsApp -->
+      <div class="footer-col footer-center">
+        <div class="whatsapp-box">
+          <h3>CHAMA NO WHATSAPP!</h3>
+          <p>PROMOÇÕES | NOVIDADES | LANÇAMENTOS</p>
+          <p class="whatsapp-subtitle">NO MODO, FAÇA PARTE DA COMUNIDADE!</p>
+          <a href="https://wa.me/5521986545581" target="_blank">
+            <button class="whatsapp-btn">PARTICIPAR</button>
+          </a>
+        </div>
+      </div>
+
+      <!-- Coluna da Direita - App -->
+      <div class="footer-col footer-app">
+        <div class="app-content">
+          <h3>SEU MOMENTO TASTI NA SUA MÃO</h3>
+          <div class="app-buttons">
+            <button onclick="window.location.href='menu.html'" class="app-nav-btn">EXPLORE O MENU</button>
+            <button onclick="window.location.href='reservas.html'" class="app-nav-btn">FAZER RESERVA</button>
+            <button onclick="window.location.href='#'" class="app-nav-btn">PEDIR DELIVERY</button>
+          </div>
+          <div class="app-stores">
+            <p>BAIXE NOSSO APP</p>
+            <div class="store-buttons">
+              <button class="store-btn">App Store</button>
+              <button class="store-btn">Google Play</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  </footer>
 
-  <div class="footer-col app-col">
-     <img src="brand.png" alt="App do restaurante" class="app-image">
-    <div class="cta-buttons">
-      <button onclick="window.location.href='menu.html'">Explore o Menu</button>
-      
+  <footer class="footer-copyright">
+    <div class="copyright-container">
+      <p>&copy; 2025 TASTI - TODOS OS DIREITOS RESERVADOS</p>
     </div>
-   
-  </div>
-</footer>
- <hr class="dotted-divider">
+  </footer>
 
-<footer class="footer-copyright">
-  <p>&copy; 2025 Tasti</p>
-</footer>
-</footer>
-
-  <script src="script.js"></script>
-</body>
-</html>    <a href="menu.html#entradas" class="category-link">
-    <div class="card"><img src="https://www.spicebangla.com/wp-content/uploads/2024/07/Crispy-Onion-Rings.webp"><strong>Entradas</strong></div>
-    </a>
-    <a href="menu.html#principais" class="category-link">
-    <div class="card"><img src="https://s2-receitas.glbimg.com/KWpGf7SHzNbPSab_Z3fmhDOGCmo=/0x0:1080x608/924x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_e84042ef78cb4708aeebdf1c68c6cbd6/internal_photos/bs/2022/A/5/RQBWn4SlyzO0JWxYflwg/capa-materia-gshow-102-.png"><strong>Pratos Principais</strong></div>
-    </a>
-    <a href="menu.html#sobremesas" class="category-link">
-    <div class="card"><img src="https://canalcozinha.com.br/wp-content/uploads/2025/09/petit-gateau-simples-e-rapido.jpg"><strong>Sobremesas</strong></div>
-    </a>
-    <a href="menu.html#bebidas" class="category-link">
-    <div class="card"><img src="https://cms-bomgourmet.s3.amazonaws.com/bomgourmet%2F2022%2F01%2F11162753%2FCaipirinha-A-Typical-Brazilia-313710112.jpg"><strong>Bebidas</strong></div>
-    </a>
-  </div>
-</section>
-
-<section id="miniCarrosselContainer">
-  <h2>Explore nossos pratos</h2>
-  <div class="mini-carrossel-wrapper">
-   
-    <div id="miniCarrossel" class="mini-carrossel">
-      <img src="https://www.morumbi.net/guia/wp-content/uploads/2017/03/outback.jpg" alt="Prato 1">
-      <img src="https://cdn.outback.com.br/wp-data/wp-content/uploads/2025/03/Outback_tabuas.jpg" alt="Prato 2">
-      <img src="https://cdn.outback.com.br/wp-data/wp-content/uploads/2023/06/Outback-Festival-2023-scaled.jpg" alt="Prato 3">
-      <img src="https://cdn.outback.com.br/wp-data/wp-content/uploads/2024/04/INTERNAS_IMPRENSA_344x192.png" alt="Prato 4">
-      <img src="https://ibahia.com/wp-content/uploads/fileadmin/user_upload/ibahia/2018/agosto/06/Outback.jpg" alt="Prato 5">
-    </div>
-   
-  </div>
-  <div id="miniIndicators" class="indicators"></div>
-</section>
-
-<hr class="dotted-divider">
-<hr class="dotted-divider">
-<hr class="dotted-divider">
-
-  <footer>
-  <footer class="footer">
-  <div class="footer-col logo-col">
-    <img src="logo1.png" alt="Tasti Logo" class="logo">
-    <ul>
-      <li><a href="sobre.html">Quem Somos</a></li>
-      
-    </ul>
-  </div>
-
-  <div class="footer-col promo-col">
-    <div class="whatsapp-box">
-      <p><strong>CHAMA NO WhatsApp!</strong></p>
-      <p>PROMOÇÕES | NOVIDADES | LANÇAMENTOS</p>
-      <a href="https://wa.me/5521986545581" target="_blank">
-      <button>PARTICIPAR</button>
-      </a>
-    </div>
-  </div>
-
-  <div class="footer-col app-col">
-     <img src="brand.png" alt="App do restaurante" class="app-image">
-    <div class="cta-buttons">
-      <button onclick="window.location.href='menu.html'">Explore o Menu</button>
-      
-    </div>
-   
-  </div>
-</footer>
- <hr class="dotted-divider">
-
-<footer class="footer-copyright">
-  <p>&copy; 2025 Tasti</p>
-</footer>
-</footer>
-
-<script type="module" src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
 
