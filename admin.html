@@ -7,50 +7,63 @@
 </head>
 <body>
   <header>
-  <div class="header-container">
-    <div class="logo-col">
-      <img src="logo1.png" alt="Tasti Logo" class="logo">
+    <div class="header-container">
+      <div class="header-left">
+        <div class="logo-col">
+          <img src="logo1.png" alt="Tasti Logo" class="logo">
+        </div>
+        <nav class="navbar">
+          <a href="index.html">INÍCIO</a>
+          <a href="menu.html">CARDÁPIO</a>
+          <a href="reservas.html">RESERVAS</a>
+          <a href="sobre.html">QUEM SOMOS</a>
+        </nav>
+      </div>
+      
+      <div class="header-right">
+        <div class="search-bar">
+          <input type="text" placeholder="Pesquisar...">
+          <button>🔍</button>
+        </div>
+        <nav class="user-nav">
+          <a href="login_cliente.html">LOGIN</a>
+          <a href="admin.html">ADMIN</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main style="padding: 20px;">
+    <h1>Painel Administrativo</h1>
+
+    <div id="loginAdmin">
+      <input type="text" id="adminUser" placeholder="Usuário">
+      <input type="password" id="adminPass" placeholder="Senha">
+      <button onclick="loginAdmin()">Entrar</button>
     </div>
 
-    <nav class="navbar">
-  <a href="index.html">Início</a>
-  <a href="menu.html">Cardápio</a>
-  <a href="reservas.html">Reservas</a>
-  <a href="login_cliente.html">Login</a> 
-  <a href="admin.html">Admin</a>
-</nav>
-  </div>
-</header>
+    <div id="painel" style="display:none;">
+      <h2>Gerenciar Cardápio</h2>
+      <form id="formPrato">
+        <input type="text" id="pratoNome" placeholder="Nome do prato" required>
+        <input type="text" id="pratoPreco" placeholder="Preço (ex: 25.00)" required>
+        <input type="text" id="pratoImg" placeholder="URL da imagem">
+        <select id="pratoCategoria" required>
+          <option value="">Selecione a categoria</option>
+          <option value="entradas">Entradas</option>
+          <option value="principais">Principais</option>
+          <option value="sobremesas">Sobremesas</option>
+          <option value="bebidas">Bebidas</option>
+        </select>
+        <button type="submit">Adicionar Prato</button>
+      </form>
 
-  <h1>Painel Administrativo</h1>
+      <div id="listaPratos" style="margin-top: 30px;"></div>
+      
+      <div id="reservasAdmin" style="margin-top: 40px;"></div>
+    </div>
+  </main>
 
-  <div id="loginAdmin">
-    <input type="text" id="adminUser" placeholder="Usuário">
-    <input type="password" id="adminPass" placeholder="Senha">
-    <button onclick="loginAdmin()">Entrar</button>
-  </div>
-
-  <div id="painel" style="display:none;">
-    <h2>Gerenciar Cardápio</h2>
-   <form id="formPrato">
-  <input type="text" id="pratoNome" placeholder="Nome do prato" required>
-  <input type="text" id="pratoPreco" placeholder="Preço" required>
-  <input type="text" id="pratoImg" placeholder="URL da imagem">
-  <select id="pratoCategoria" required>
-    <option value="">Selecione a categoria</option>
-    <option value="entradas">Entradas</option>
-    <option value="principais">Principais</option>
-    <option value="sobremesas">Sobremesas</option>
-    <option value="bebidas">Bebidas</option>
-  </select>
-  <button type="submit">Adicionar Prato</button>
-</form>
-
-    <div id="listaPratos"></div>
-
-    
-
-<script type="module" src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
-
