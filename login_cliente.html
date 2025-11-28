@@ -2,52 +2,95 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Login de Cliente - Tasti</title>
+  <title>Login - Tasti</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
     <div class="header-container">
-      <div class="logo-col">
-        <img src="logo1.png" alt="Tasti Logo" class="logo">
+      <div class="header-left">
+        <div class="logo-col">
+          <img src="logo1.png" alt="Tasti Logo" class="logo">
+        </div>
+        <nav class="navbar">
+          <a href="index.html">INÍCIO</a>
+          <a href="menu.html">CARDÁPIO</a>
+          <a href="reservas.html">RESERVAS</a>
+          <a href="sobre.html">QUEM SOMOS</a>
+        </nav>
       </div>
-
-      <div class="search-bar">
-        <input type="text" placeholder="Pesquisar...">
-        <button>🔍</button>
+      
+      <div class="header-right">
+        <div class="search-bar">
+          <input type="text" placeholder="Pesquisar...">
+          <button>🔍</button>
+        </div>
+        <nav class="user-nav">
+          <a href="login_cliente.html">LOGIN</a>
+          <a href="admin.html">ADMIN</a>
+        </nav>
       </div>
-
-      <nav class="navbar">
-        <a href="index.html">Início</a>
-        <a href="menu.html">Cardápio</a>
-        <a href="reservas.html">Reservas</a>
-        <a href="login_cliente.html">Login</a>
-        <a href="admin.html">Admin</a>
-      </nav>
     </div>
   </header>
 
   <main>
-    <section id="loginClienteSection" class="login-container">
-      <h2>Login de Cliente</h2>
+    <section class="login-container">
+      <h2>Login do Cliente</h2>
       <div class="login-box">
-        <input type="text" id="clienteNome" placeholder="Seu Nome" required>
-        <input type="tel" id="clienteTelefone" placeholder="Seu Telefone" required>
-        <input type="email" id="clienteEmail" placeholder="Seu E-mail" required>
-        <input type="password" id="clientePass" placeholder="Sua Senha" required>
+        <input type="email" id="clienteEmail" placeholder="E-mail" required>
+        <input type="password" id="clientePass" placeholder="Senha" required>
 
         <button onclick="loginCliente()">Entrar</button>
 
         <p class="login-links">
-          <a href="#">Esqueci minha senha</a> | <a href="#">Criar conta</a>
+          Não tem conta?  
+          <a href="criar_conta.html">Criar Conta</a>
         </p>
       </div>
     </section>
   </main>
 
-  <footer>
-    <p>&copy; 2024 Tasti. Todos os direitos reservados.</p>
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-col footer-nav">
+        <div class="footer-section">
+          <h3>TASTI</h3>
+          <ul class="footer-links">
+            <li><a href="sobre.html">QUEM SOMOS</a></li>
+            <li><a href="reservas.html">RESERVAS</a></li>
+            <li><a href="menu.html">CARDÁPIO</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-col footer-center">
+        <div class="whatsapp-box">
+          <h3>CHAMA NO WHATSAPP!</h3>
+          <p>PROMOÇÕES | NOVIDADES | LANÇAMENTOS</p>
+          <a href="https://wa.me/5521986545581" target="_blank">
+            <button class="whatsapp-btn">PARTICIPAR</button>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-col footer-app">
+        <div class="app-content">
+          <h3>SEU MOMENTO TASTI</h3>
+          <div class="app-buttons">
+            <button onclick="window.location.href='menu.html'" class="app-nav-btn">EXPLORE O MENU</button>
+            <button onclick="window.location.href='reservas.html'" class="app-nav-btn">FAZER RESERVA</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </footer>
-<script type="module" src="app.js"></script>
+
+  <footer class="footer-copyright">
+    <div class="copyright-container">
+      <p>&copy; 2025 TASTI - TODOS OS DIREITOS RESERVADOS</p>
+    </div>
+  </footer>
+
+  <script type="module" src="app.js"></script>
 </body>
 </html>
