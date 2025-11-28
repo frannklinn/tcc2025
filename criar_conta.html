@@ -6,53 +6,94 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<header>
-  <div class="header-container">
-    <div class="logo-col">
-      <img src="logo1.png" alt="Tasti Logo" class="logo">
+  <header>
+    <div class="header-container">
+      <div class="header-left">
+        <div class="logo-col">
+          <img src="logo1.png" alt="Tasti Logo" class="logo">
+        </div>
+        <nav class="navbar">
+          <a href="index.html">INÍCIO</a>
+          <a href="menu.html">CARDÁPIO</a>
+          <a href="reservas.html">RESERVAS</a>
+          <a href="sobre.html">QUEM SOMOS</a>
+        </nav>
+      </div>
+      
+      <div class="header-right">
+        <div class="search-bar">
+          <input type="text" placeholder="Pesquisar...">
+          <button>🔍</button>
+        </div>
+        <nav class="user-nav">
+          <a href="login_cliente.html">LOGIN</a>
+          <a href="admin.html">ADMIN</a>
+        </nav>
+      </div>
     </div>
+  </header>
 
-    <nav class="navbar">
-      <a href="index.html">Início</a>
-      <a href="menu.html">Cardápio</a>
-      <a href="reservas.html">Reservas</a>
-      <a href="login_cliente.html">Login</a>
-      <a href="admin.html">Admin</a>
-    </nav>
-  </div>
-</header>
+  <main>
+    <section class="login-container">
+      <h2>Criar Conta</h2>
+      <div class="login-box">
+        <input type="text" id="cadNome" placeholder="Nome completo" required>
+        <input type="tel" id="cadTelefone" placeholder="Telefone (ex: 21999999999)" required>
+        <input type="email" id="cadEmail" placeholder="E-mail" required>
+        <input type="password" id="cadSenha" placeholder="Senha" required>
+        <input type="password" id="cadConfirmarSenha" placeholder="Confirmar Senha" required>
 
-<main>
-  <section class="login-container">
-    <h2>Criar Conta</h2>
+        <button onclick="criarConta()">Criar Conta</button>
 
-    <div class="login-box">
+        <p class="login-links">
+          Já tem conta?  
+          <a href="login_cliente.html">Entrar</a>
+        </p>
+      </div>
+    </section>
+  </main>
 
-      <input type="text" id="cadNome" placeholder="Nome completo" required>
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-col footer-nav">
+        <div class="footer-section">
+          <h3>TASTI</h3>
+          <ul class="footer-links">
+            <li><a href="sobre.html">QUEM SOMOS</a></li>
+            <li><a href="reservas.html">RESERVAS</a></li>
+            <li><a href="menu.html">CARDÁPIO</a></li>
+          </ul>
+        </div>
+      </div>
 
-      <input type="tel" id="cadTelefone" placeholder="Telefone (ex: 21999999999)" required>
+      <div class="footer-col footer-center">
+        <div class="whatsapp-box">
+          <h3>CHAMA NO WHATSAPP!</h3>
+          <p>PROMOÇÕES | NOVIDADES | LANÇAMENTOS</p>
+          <a href="https://wa.me/5521986545581" target="_blank">
+            <button class="whatsapp-btn">PARTICIPAR</button>
+          </a>
+        </div>
+      </div>
 
-      <input type="email" id="cadEmail" placeholder="E-mail" required>
-
-      <input type="password" id="cadSenha" placeholder="Senha" required>
-
-      <button onclick="criarConta()">Criar Conta</button>
-
-      <p class="login-links">
-        Já tem conta?  
-        <a href="login_cliente.html">Entrar</a>
-      </p>
-
+      <div class="footer-col footer-app">
+        <div class="app-content">
+          <h3>SEU MOMENTO TASTI</h3>
+          <div class="app-buttons">
+            <button onclick="window.location.href='menu.html'" class="app-nav-btn">EXPLORE O MENU</button>
+            <button onclick="window.location.href='reservas.html'" class="app-nav-btn">FAZER RESERVA</button>
+          </div>
+        </div>
+      </div>
     </div>
+  </footer>
 
-  </section>
-</main>
+  <footer class="footer-copyright">
+    <div class="copyright-container">
+      <p>&copy; 2025 TASTI - TODOS OS DIREITOS RESERVADOS</p>
+    </div>
+  </footer>
 
-<footer>
-  <p>&copy; 2025 Tasti</p>
-</footer>
-
-<script type="module" src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
