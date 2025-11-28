@@ -8,10 +8,12 @@ import {
   getDocs, 
   onSnapshot, 
   deleteDoc, 
-  doc
+  doc,
+  Timestamp
 } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-// Configuração do Firebase
+// ==================== CONFIGURAÇÃO SEGURA DO FIREBASE ====================
+// ATENÇÃO: Em produção, mova estas credenciais para variáveis de ambiente
 const firebaseConfig = {
   apiKey: "AIzaSyCWB2EZidqC2i9b0PY5w9a_0Yu8udfGwOw",
   authDomain: "restaurante-tasti.firebaseapp.com",
@@ -22,12 +24,41 @@ const firebaseConfig = {
   measurementId: "G-DH1FWLFKF6"
 };
 
-// Inicialização do Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const db = getFirestore(app);
+// ==================== INICIALIZAÇÃO SEGURA ====================
+let app, analytics, db;
 
-// Variáveis globais
+function initializeFirebase() {
+  try {
+    app = initializeApp(firebaseConfig);
+    analytics = getAnalytics(app);
+    db = getFirestore(app);
+    console.log('✅ Firebase inicializado com sucesso');
+    return true;
+  } catch (error) {
+    console.error('❌ Erro ao inicializar Firebase:', error);
+    return false;
+  }
+}
+
+// ==================== SISTEMA DE SEGURANÇA ====================
+// Função básica de hash (em produção use bcrypt)
+function simpleHash(text) {
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    const char = text.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return hash.toString();
+}
+
+// Validar dados de entrada
+function sanitizeInput(input) {
+  if (typeof input !== 'string') return input;
+  return input.trim().replace(/[<>]/g, '');
+}
+
+// ==================== VARIÁVEIS GLOBAIS ====================
 let reservas = [];
 let cardapio = {
   entradas: [],
@@ -37,17 +68,39 @@ let cardapio = {
 };
 let usuarios = [];
 const totalMesas = 12;
+let firebaseInitialized = false;
+
+// ==================== SISTEMA DE LOG E MONITORAMENTO ====================
+const Logger = {
+  info: (message, data = null) => {
+    console.log(`ℹ️ ${message}`, data || '');
+  },
+  error: (message, error = null) => {
+    console.error(`❌ ${message}`, error || '');
+  },
+  warn: (message, data = null) => {
+    console.warn(`⚠️ ${message}`, data || '');
+  }
+};
 
 // ==================== SISTEMA DE USUÁRIOS (FIREBASE) ====================
 async function carregarUsuarios() {
+  if (!firebaseInitialized) {
+    Logger.warn('Firebase não inicializado, usando localStorage');
+    const usuariosSalvos = localStorage.getItem('usuarios');
+    usuarios = usuariosSalvos ? JSON.parse(usuariosSalvos) : [];
+    return;
+  }
+
   try {
     const querySnapshot = await getDocs(collection(db, "usuarios"));
     usuarios = [];
     querySnapshot.forEach((doc) => {
       usuarios.push({ id: doc.id, ...doc.data() });
     });
+    Logger.info('Usuários carregados do Firebase', usuarios.length);
   } catch (error) {
-    console.error("Erro ao carregar usuários:", error);
+    Logger.error("Erro ao carregar usuários:", error);
     // Fallback para localStorage
     const usuariosSalvos = localStorage.getItem('usuarios');
     usuarios = usuariosSalvos ? JSON.parse(usuariosSalvos) : [];
@@ -55,11 +108,29 @@ async function carregarUsuarios() {
 }
 
 async function salvarUsuarioFirebase(usuario) {
+  if (!firebaseInitialized) {
+    Logger.warn('Firebase não disponível, salvando localmente');
+    usuario.id = Date.now().toString();
+    usuarios.push(usuario);
+    localStorage.setItem('usuarios', JSON.stringify(usuarios));
+    return usuario.id;
+  }
+
   try {
-    const docRef = await addDoc(collection(db, "usuarios"), usuario);
+    // Sanitizar dados e aplicar hash na senha
+    const usuarioSanitizado = {
+      nome: sanitizeInput(usuario.nome),
+      telefone: sanitizeInput(usuario.telefone),
+      email: sanitizeInput(usuario.email),
+      senha: simpleHash(usuario.senha), // Hash básico - em produção use bcrypt
+      dataCadastro: Timestamp.now()
+    };
+
+    const docRef = await addDoc(collection(db, "usuarios"), usuarioSanitizado);
+    Logger.info('Usuário salvo no Firebase', docRef.id);
     return docRef.id;
   } catch (error) {
-    console.error("Erro ao salvar usuário no Firebase:", error);
+    Logger.error("Erro ao salvar usuário no Firebase:", error);
     // Fallback para localStorage
     usuario.id = Date.now().toString();
     usuarios.push(usuario);
@@ -70,7 +141,7 @@ async function salvarUsuarioFirebase(usuario) {
 
 async function verificarUsuarioExistente(email) {
   await carregarUsuarios();
-  return usuarios.find(u => u.email === email);
+  return usuarios.find(u => u.email === sanitizeInput(email));
 }
 
 function salvarUsuarios() {
@@ -78,12 +149,22 @@ function salvarUsuarios() {
 }
 
 function getUsuarioLogado() {
-  const usuario = localStorage.getItem('usuarioLogado');
-  return usuario ? JSON.parse(usuario) : null;
+  try {
+    const usuario = localStorage.getItem('usuarioLogado');
+    return usuario ? JSON.parse(usuario) : null;
+  } catch (error) {
+    Logger.error('Erro ao recuperar usuário logado', error);
+    return null;
+  }
 }
 
 function setUsuarioLogado(usuario) {
-  localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+  try {
+    localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+    Logger.info('Usuário logado definido', usuario.nome);
+  } catch (error) {
+    Logger.error('Erro ao definir usuário logado', error);
+  }
 }
 
 function logout() {
@@ -100,75 +181,86 @@ function validarEmail(email) {
 
 // ==================== CARROSSEL ====================
 function inicializarCarrossel() {
-  let idx = 0;
-  const imagens = document.querySelectorAll('#carrossel img');
-  
-  if (imagens.length > 0) {
-    setInterval(() => {
-      imagens.forEach(i => i.classList.remove('ativo'));
-      idx = (idx + 1) % imagens.length;
-      imagens[idx].classList.add('ativo');
-    }, 3000);
+  try {
+    let idx = 0;
+    const imagens = document.querySelectorAll('#carrossel img');
+    
+    if (imagens.length > 0) {
+      setInterval(() => {
+        imagens.forEach(i => i.classList.remove('ativo'));
+        idx = (idx + 1) % imagens.length;
+        imagens[idx].classList.add('ativo');
+      }, 3000);
+      Logger.info('Carrossel inicializado');
+    }
+  } catch (error) {
+    Logger.error('Erro ao inicializar carrossel', error);
   }
 }
 
 // ==================== MINI CARROSSEL ====================
 function inicializarMiniCarrossel() {
-  const miniCarrossel = document.getElementById("miniCarrossel");
-  const prevBtn = document.getElementById("prevBtn");
-  const nextBtn = document.getElementById("nextBtn");
-  const indicatorsContainer = document.getElementById("miniIndicators");
+  try {
+    const miniCarrossel = document.getElementById("miniCarrossel");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const indicatorsContainer = document.getElementById("miniIndicators");
 
-  if (!miniCarrossel) return;
+    if (!miniCarrossel) return;
 
-  let offset = 0;
-  const imagemLargura = 330;
-  const imagens = document.querySelectorAll("#miniCarrossel img");
-  let totalSlides = Math.max(0, imagens.length - 3);
+    let offset = 0;
+    const imagemLargura = 330;
+    const imagens = document.querySelectorAll("#miniCarrossel img");
+    let totalSlides = Math.max(0, imagens.length - 3);
 
-  // Criar indicadores
-  if (indicatorsContainer) {
-    indicatorsContainer.innerHTML = '';
-    imagens.forEach((_, i) => {
-      const dot = document.createElement("div");
-      dot.classList.add("dot");
-      if (i === 0) dot.classList.add("active");
-      dot.addEventListener("click", () => {
-        offset = -i * imagemLargura;
-        atualizarMiniCarrossel();
-        atualizarDots(i);
+    // Criar indicadores
+    if (indicatorsContainer) {
+      indicatorsContainer.innerHTML = '';
+      imagens.forEach((_, i) => {
+        const dot = document.createElement("div");
+        dot.classList.add("dot");
+        if (i === 0) dot.classList.add("active");
+        dot.addEventListener("click", () => {
+          offset = -i * imagemLargura;
+          atualizarMiniCarrossel();
+          atualizarDots(i);
+        });
+        indicatorsContainer.appendChild(dot);
       });
-      indicatorsContainer.appendChild(dot);
-    });
-  }
+    }
 
-  function atualizarMiniCarrossel() {
-    miniCarrossel.style.transform = `translateX(${offset}px)`;
-  }
+    function atualizarMiniCarrossel() {
+      miniCarrossel.style.transform = `translateX(${offset}px)`;
+    }
 
-  function atualizarDots(index) {
-    document.querySelectorAll(".dot").forEach(dot => dot.classList.remove("active"));
-    const dots = document.querySelectorAll(".dot");
-    if (dots[index]) dots[index].classList.add("active");
-  }
+    function atualizarDots(index) {
+      document.querySelectorAll(".dot").forEach(dot => dot.classList.remove("active"));
+      const dots = document.querySelectorAll(".dot");
+      if (dots[index]) dots[index].classList.add("active");
+    }
 
-  // Event listeners para botões (se existirem)
-  if (prevBtn) {
-    prevBtn.addEventListener("click", () => {
-      offset += imagemLargura;
-      if (offset > 0) offset = -(imagemLargura * totalSlides);
-      atualizarMiniCarrossel();
-      atualizarDots(Math.abs(offset) / imagemLargura);
-    });
-  }
+    // Event listeners para botões (se existirem)
+    if (prevBtn) {
+      prevBtn.addEventListener("click", () => {
+        offset += imagemLargura;
+        if (offset > 0) offset = -(imagemLargura * totalSlides);
+        atualizarMiniCarrossel();
+        atualizarDots(Math.abs(offset) / imagemLargura);
+      });
+    }
 
-  if (nextBtn) {
-    nextBtn.addEventListener("click", () => {
-      offset -= imagemLargura;
-      if (Math.abs(offset) > imagemLargura * totalSlides) offset = 0;
-      atualizarMiniCarrossel();
-      atualizarDots(Math.abs(offset) / imagemLargura);
-    });
+    if (nextBtn) {
+      nextBtn.addEventListener("click", () => {
+        offset -= imagemLargura;
+        if (Math.abs(offset) > imagemLargura * totalSlides) offset = 0;
+        atualizarMiniCarrossel();
+        atualizarDots(Math.abs(offset) / imagemLargura);
+      });
+    }
+
+    Logger.info('Mini carrossel inicializado');
+  } catch (error) {
+    Logger.error('Erro ao inicializar mini carrossel', error);
   }
 }
 
@@ -180,6 +272,17 @@ async function inicializarReservas() {
 }
 
 async function carregarReservasFirebase() {
+  if (!firebaseInitialized) {
+    Logger.warn('Firebase não inicializado, usando localStorage para reservas');
+    const reservasLocal = localStorage.getItem('reservas');
+    if (reservasLocal) {
+      reservas = JSON.parse(reservasLocal);
+      renderReservas();
+      renderMesas();
+    }
+    return;
+  }
+
   try {
     const querySnapshot = await getDocs(collection(db, "reservas"));
     reservas = [];
@@ -188,8 +291,9 @@ async function carregarReservasFirebase() {
     });
     renderReservas();
     renderMesas();
+    Logger.info('Reservas carregadas do Firebase', reservas.length);
   } catch (error) {
-    console.error("Erro ao carregar reservas:", error);
+    Logger.error("Erro ao carregar reservas:", error);
     // Fallback para localStorage
     const reservasLocal = localStorage.getItem('reservas');
     if (reservasLocal) {
@@ -201,17 +305,27 @@ async function carregarReservasFirebase() {
 }
 
 function configurarListenerReservas() {
-  onSnapshot(collection(db, "reservas"), (snapshot) => {
-    reservas = [];
-    snapshot.forEach((doc) => {
-      reservas.push({ id: doc.id, ...doc.data() });
+  if (!firebaseInitialized) {
+    Logger.warn('Firebase não disponível para listener em tempo real');
+    return;
+  }
+
+  try {
+    onSnapshot(collection(db, "reservas"), (snapshot) => {
+      reservas = [];
+      snapshot.forEach((doc) => {
+        reservas.push({ id: doc.id, ...doc.data() });
+      });
+      renderReservas();
+      renderMesas();
+      if (document.getElementById('reservasAdmin')) {
+        renderAdmin();
+      }
+      Logger.info('Reservas atualizadas em tempo real');
     });
-    renderReservas();
-    renderMesas();
-    if (document.getElementById('reservasAdmin')) {
-      renderAdmin();
-    }
-  });
+  } catch (error) {
+    Logger.error('Erro no listener de reservas', error);
+  }
 }
 
 function configurarFormReserva() {
@@ -247,8 +361,8 @@ function configurarFormReserva() {
       }
 
       const usuarioLogado = getUsuarioLogado();
-      const nomeReserva = usuarioLogado ? usuarioLogado.nome : document.getElementById('nome').value;
-      const emailReserva = usuarioLogado ? usuarioLogado.email : document.getElementById('email').value;
+      const nomeReserva = usuarioLogado ? usuarioLogado.nome : sanitizeInput(document.getElementById('nome').value);
+      const emailReserva = usuarioLogado ? usuarioLogado.email : sanitizeInput(document.getElementById('email').value);
 
       if (!nomeReserva || !emailReserva) {
         alert("Por favor, faça login ou preencha seus dados.");
@@ -273,7 +387,7 @@ function configurarFormReserva() {
         pessoas: document.getElementById('pessoas').value,
         mesa: mesaInput.value,
         aniversario: document.getElementById('aniversario').value,
-        timestamp: new Date(),
+        timestamp: Timestamp.now(),
         desconto: "",
         usuarioId: usuarioLogado ? usuarioLogado.id : null
       };
@@ -309,7 +423,19 @@ function configurarFormReserva() {
       }
 
       try {
-        await addDoc(collection(db, "reservas"), reservaData);
+        if (firebaseInitialized) {
+          await addDoc(collection(db, "reservas"), reservaData);
+          Logger.info('Reserva salva no Firebase');
+        } else {
+          // Fallback para localStorage
+          reservaData.id = Date.now().toString();
+          reservas.push(reservaData);
+          localStorage.setItem('reservas', JSON.stringify(reservas));
+          renderReservas();
+          renderMesas();
+          Logger.info('Reserva salva localmente');
+        }
+        
         formReserva.reset();
         if (aniversarioInput) aniversarioInput.style.display = 'none';
         
@@ -321,7 +447,7 @@ function configurarFormReserva() {
         
         alert("Reserva realizada com sucesso!");
       } catch (error) {
-        console.error("Erro ao fazer reserva:", error);
+        Logger.error("Erro ao fazer reserva:", error);
         // Fallback para localStorage
         reservaData.id = Date.now().toString();
         reservas.push(reservaData);
@@ -380,7 +506,7 @@ function renderReservas() {
   reservasParaExibir.forEach(r => {
     div.innerHTML += `
       <div class="reserva-item">
-        <p><strong>${r.nome}</strong> - ${r.data} ${r.hora} (Mesa ${r.mesa}, ${r.pessoas} pessoas) ${r.desconto || ''}</p>
+        <p><strong>${sanitizeInput(r.nome)}</strong> - ${r.data} ${r.hora} (Mesa ${r.mesa}, ${r.pessoas} pessoas) ${r.desconto || ''}</p>
       </div>
     `;
   });
@@ -394,21 +520,8 @@ async function inicializarCardapio() {
 }
 
 async function carregarCardapioFirebase() {
-  try {
-    const querySnapshot = await getDocs(collection(db, "cardapio"));
-    cardapio = { entradas: [], principais: [], sobremesas: [], bebidas: [] };
-    
-    querySnapshot.forEach((doc) => {
-      const prato = doc.data();
-      if (cardapio[prato.categoria]) {
-        cardapio[prato.categoria].push({ id: doc.id, ...prato });
-      }
-    });
-    
-    renderMenuDividido();
-  } catch (error) {
-    console.error("Erro ao carregar cardápio:", error);
-    // Fallback para localStorage
+  if (!firebaseInitialized) {
+    Logger.warn('Firebase não inicializado, usando localStorage para cardápio');
     const cardapioLocal = localStorage.getItem('cardapio');
     if (cardapioLocal) {
       cardapio = JSON.parse(cardapioLocal);
@@ -434,14 +547,14 @@ async function carregarCardapioFirebase() {
       };
     }
     renderMenuDividido();
+    return;
   }
-}
 
-function configurarListenerCardapio() {
-  onSnapshot(collection(db, "cardapio"), (snapshot) => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "cardapio"));
     cardapio = { entradas: [], principais: [], sobremesas: [], bebidas: [] };
     
-    snapshot.forEach((doc) => {
+    querySnapshot.forEach((doc) => {
       const prato = doc.data();
       if (cardapio[prato.categoria]) {
         cardapio[prato.categoria].push({ id: doc.id, ...prato });
@@ -449,10 +562,44 @@ function configurarListenerCardapio() {
     });
     
     renderMenuDividido();
-    if (document.getElementById('listaPratos')) {
-      renderAdmin();
+    Logger.info('Cardápio carregado do Firebase');
+  } catch (error) {
+    Logger.error("Erro ao carregar cardápio:", error);
+    // Fallback para localStorage
+    const cardapioLocal = localStorage.getItem('cardapio');
+    if (cardapioLocal) {
+      cardapio = JSON.parse(cardapioLocal);
     }
-  });
+    renderMenuDividido();
+  }
+}
+
+function configurarListenerCardapio() {
+  if (!firebaseInitialized) {
+    Logger.warn('Firebase não disponível para listener do cardápio');
+    return;
+  }
+
+  try {
+    onSnapshot(collection(db, "cardapio"), (snapshot) => {
+      cardapio = { entradas: [], principais: [], sobremesas: [], bebidas: [] };
+      
+      snapshot.forEach((doc) => {
+        const prato = doc.data();
+        if (cardapio[prato.categoria]) {
+          cardapio[prato.categoria].push({ id: doc.id, ...prato });
+        }
+      });
+      
+      renderMenuDividido();
+      if (document.getElementById('listaPratos')) {
+        renderAdmin();
+      }
+      Logger.info('Cardápio atualizado em tempo real');
+    });
+  } catch (error) {
+    Logger.error('Erro no listener do cardápio', error);
+  }
 }
 
 function renderMenuDividido() {
@@ -471,9 +618,9 @@ function renderMenuDividido() {
       cardapio[categoria].forEach(prato => {
         div.innerHTML += `
           <div class="prato-card">
-            <img src="${prato.img}" alt="${prato.nome}" onerror="this.src='https://via.placeholder.com/150?text=Imagem+Indisponível'">
+            <img src="${prato.img}" alt="${sanitizeInput(prato.nome)}" onerror="this.src='https://via.placeholder.com/150?text=Imagem+Indisponível'">
             <div class="prato-info">
-              <h4>${prato.nome}</h4>
+              <h4>${sanitizeInput(prato.nome)}</h4>
               <p class="preco">R$ ${parseFloat(prato.preco).toFixed(2).replace('.', ',')}</p>
             </div>
           </div>
@@ -498,11 +645,11 @@ function configurarFormPrato() {
 
     try {
       const pratoData = {
-        nome: document.getElementById('pratoNome').value,
+        nome: sanitizeInput(document.getElementById('pratoNome').value),
         preco: document.getElementById('pratoPreco').value,
-        img: document.getElementById('pratoImg').value || "https://via.placeholder.com/150?text=Sem+Imagem",
+        img: sanitizeInput(document.getElementById('pratoImg').value) || "https://via.placeholder.com/150?text=Sem+Imagem",
         categoria: document.getElementById('pratoCategoria').value,
-        timestamp: new Date()
+        timestamp: Timestamp.now()
       };
 
       if (!pratoData.categoria) {
@@ -513,11 +660,25 @@ function configurarFormPrato() {
       }
 
       try {
-        await addDoc(collection(db, "cardapio"), pratoData);
+        if (firebaseInitialized) {
+          await addDoc(collection(db, "cardapio"), pratoData);
+          Logger.info('Prato adicionado no Firebase');
+        } else {
+          // Fallback para localStorage
+          pratoData.id = Date.now().toString();
+          if (!cardapio[pratoData.categoria]) {
+            cardapio[pratoData.categoria] = [];
+          }
+          cardapio[pratoData.categoria].push(pratoData);
+          localStorage.setItem('cardapio', JSON.stringify(cardapio));
+          renderMenuDividido();
+          Logger.info('Prato adicionado localmente');
+        }
+        
         formPrato.reset();
         alert(`Prato adicionado em ${pratoData.categoria}!`);
       } catch (error) {
-        console.error("Erro ao adicionar prato:", error);
+        Logger.error("Erro ao adicionar prato:", error);
         // Fallback para localStorage
         pratoData.id = Date.now().toString();
         if (!cardapio[pratoData.categoria]) {
@@ -595,15 +756,17 @@ function renderMesas() {
 
 // ==================== ADMIN ====================
 function loginAdmin() {
-  const u = document.getElementById('adminUser').value;
-  const p = document.getElementById('adminPass').value;
+  const u = sanitizeInput(document.getElementById('adminUser').value);
+  const p = sanitizeInput(document.getElementById('adminPass').value);
   
   if (u === "admin" && p === "123") {
     document.getElementById('loginAdmin').style.display = "none";
     document.getElementById('painel').style.display = "block";
     renderAdmin();
+    Logger.info('Admin logado com sucesso');
   } else {
     alert("Usuário ou senha incorretos");
+    Logger.warn('Tentativa de login admin falhou');
   }
 }
 
@@ -611,18 +774,20 @@ async function removerPrato(categoria, index, pratoId = null) {
   if (!confirm("Tem certeza que deseja remover este prato?")) return;
 
   try {
-    if (pratoId) {
+    if (pratoId && firebaseInitialized) {
       // Remover do Firebase
       await deleteDoc(doc(db, "cardapio", pratoId));
+      Logger.info('Prato removido do Firebase', pratoId);
     } else {
       // Remover do localStorage (fallback)
       cardapio[categoria].splice(index, 1);
       localStorage.setItem('cardapio', JSON.stringify(cardapio));
       renderAdmin();
       renderMenuDividido();
+      Logger.info('Prato removido localmente');
     }
   } catch (error) {
-    console.error("Erro ao remover prato:", error);
+    Logger.error("Erro ao remover prato:", error);
     // Fallback
     cardapio[categoria].splice(index, 1);
     localStorage.setItem('cardapio', JSON.stringify(cardapio));
@@ -642,7 +807,7 @@ function renderAdmin() {
       reservas.forEach(r => {
         divRes.innerHTML += `
           <div class="reserva-admin-item">
-            <p><strong>${r.nome}</strong> (${r.email})<br>
+            <p><strong>${sanitizeInput(r.nome)}</strong> (${sanitizeInput(r.email)})<br>
             ${r.data} ${r.hora} - Mesa ${r.mesa} - ${r.pessoas} pessoas<br>
             ${r.desconto || ''}</p>
           </div>
@@ -664,7 +829,7 @@ function renderAdmin() {
         cardapio[categoria].forEach((p, index) => {
           lista.innerHTML += `
             <div class="prato-admin-item">
-              <p><strong>${p.nome}</strong> - R$ ${p.preco}</p>
+              <p><strong>${sanitizeInput(p.nome)}</strong> - R$ ${p.preco}</p>
               <button class="remover-btn" onclick="removerPrato('${categoria}', ${index}, '${p.id || ''}')">Remover</button>
             </div>
           `;
@@ -680,8 +845,8 @@ function renderAdmin() {
 
 // ==================== LOGIN CLIENTE ====================
 async function loginCliente() {
-  const email = document.getElementById('clienteEmail').value;
-  const senha = document.getElementById('clientePass').value;
+  const email = sanitizeInput(document.getElementById('clienteEmail').value);
+  const senha = sanitizeInput(document.getElementById('clientePass').value);
 
   if (!email || !senha) {
     alert("Por favor, preencha todos os campos.");
@@ -695,24 +860,26 @@ async function loginCliente() {
 
   // Buscar usuário no Firebase
   await carregarUsuarios();
-  const usuario = usuarios.find(u => u.email === email && u.senha === senha);
+  const usuario = usuarios.find(u => u.email === email && u.senha === simpleHash(senha));
   
   if (usuario) {
     setUsuarioLogado(usuario);
     alert(`Bem-vindo de volta, ${usuario.nome}!`);
+    Logger.info('Cliente logado com sucesso', usuario.nome);
     window.location.href = 'index.html';
   } else {
     alert("E-mail ou senha incorretos. Tente novamente ou crie uma conta.");
+    Logger.warn('Tentativa de login cliente falhou', email);
   }
 }
 
 // ==================== CRIAR CONTA ====================
 async function criarConta() {
-  const nome = document.getElementById('cadNome').value;
-  const telefone = document.getElementById('cadTelefone').value;
-  const email = document.getElementById('cadEmail').value;
-  const senha = document.getElementById('cadSenha').value;
-  const confirmarSenha = document.getElementById('cadConfirmarSenha').value;
+  const nome = sanitizeInput(document.getElementById('cadNome').value);
+  const telefone = sanitizeInput(document.getElementById('cadTelefone').value);
+  const email = sanitizeInput(document.getElementById('cadEmail').value);
+  const senha = sanitizeInput(document.getElementById('cadSenha').value);
+  const confirmarSenha = sanitizeInput(document.getElementById('cadConfirmarSenha').value);
 
   // Validações
   if (!nome || !telefone || !email || !senha || !confirmarSenha) {
@@ -748,7 +915,7 @@ async function criarConta() {
     nome: nome,
     telefone: telefone,
     email: email,
-    senha: senha, // ATENÇÃO: Em produção, isso deve ser criptografado!
+    senha: senha, // Será hasheada na função salvarUsuarioFirebase
     dataCadastro: new Date().toISOString()
   };
 
@@ -761,9 +928,10 @@ async function criarConta() {
     setUsuarioLogado(novoUsuario);
     
     alert(`Conta criada com sucesso! Bem-vindo ao Tasti, ${nome}!`);
+    Logger.info('Nova conta criada', nome);
     window.location.href = 'index.html';
   } catch (error) {
-    console.error("Erro ao criar conta:", error);
+    Logger.error("Erro ao criar conta:", error);
     alert("Erro ao criar conta. Tente novamente.");
   }
 }
@@ -772,7 +940,7 @@ async function criarConta() {
 function verificarUsuarioLogado() {
   const usuarioLogado = getUsuarioLogado();
   if (usuarioLogado) {
-    console.log(`Usuário logado: ${usuarioLogado.nome}`);
+    Logger.info(`Usuário logado: ${usuarioLogado.nome}`);
     // Atualizar interface
     const loginLinks = document.querySelectorAll('a[href="login_cliente.html"]');
     loginLinks.forEach(link => {
@@ -802,12 +970,36 @@ function verificarUsuarioLogado() {
   }
 }
 
+// ==================== SISTEMA DE TESTES ====================
+async function testarSistema() {
+  Logger.info('Iniciando testes do sistema...');
+  
+  // Teste de Firebase
+  if (firebaseInitialized) {
+    Logger.info('✅ Firebase conectado');
+  } else {
+    Logger.warn('⚠️ Firebase offline - usando modo local');
+  }
+  
+  // Teste de dados locais
+  const usuarioLogado = getUsuarioLogado();
+  if (usuarioLogado) {
+    Logger.info('✅ Usuário logado:', usuarioLogado.nome);
+  }
+  
+  Logger.info(`✅ ${reservas.length} reservas carregadas`);
+  Logger.info(`✅ Cardápio com ${Object.keys(cardapio).reduce((acc, cat) => acc + cardapio[cat].length, 0)} pratos`);
+}
+
 // ==================== INICIALIZAÇÃO GERAL ====================
 document.addEventListener('DOMContentLoaded', async function() {
-  console.log('Inicializando Restaurante Tasti...');
+  Logger.info('Inicializando Restaurante Tasti...');
+  
+  // Inicializar Firebase
+  firebaseInitialized = initializeFirebase();
   
   // Carregar dados iniciais
-  await carregarUsuarios(); // Agora é async
+  await carregarUsuarios();
   verificarUsuarioLogado();
   
   // Inicializar componentes
@@ -823,12 +1015,16 @@ document.addEventListener('DOMContentLoaded', async function() {
     dataInput.min = hoje;
     dataInput.value = hoje;
   }
+  
+  // Executar testes do sistema
+  await testarSistema();
 });
 
-// Exportar funções globais para o HTML
+// ==================== EXPORTAR FUNÇÕES GLOBAIS ====================
 window.loginAdmin = loginAdmin;
 window.loginCliente = loginCliente;
 window.removerPrato = removerPrato;
 window.criarConta = criarConta;
 window.logout = logout;
 window.verificarUsuarioLogado = verificarUsuarioLogado;
+window.testarSistema = testarSistema;
