@@ -1,6 +1,6 @@
 # Tasti — Sistema para Restaurante  
 **Trabalho de Conclusão de Curso – 2025**  
-**Autores:** Fábio Franklin e Gabriela (Gabi)
+**Autores:** Fábio Franklin e Gabrielle Luizi
 
 ## 📌 Sobre o Projeto
 O **Tasti** é um sistema desenvolvido para facilitar a organização e o atendimento de um restaurante moderno, trazendo praticidade tanto para os clientes quanto para os funcionários.  
